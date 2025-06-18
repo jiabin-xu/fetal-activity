@@ -1,0 +1,243 @@
+.fetal-count-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e6f7ff 0%, #f0f8ff 100%);
+  padding: 20px;
+
+  .status-bar {
+    margin-bottom: 20px;
+  }
+
+  .today-summary {
+    margin-bottom: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(135, 206, 235, 0.15);
+
+    .summary-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .summary-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+      }
+    }
+
+    .summary-content {
+      .period-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+
+        .stat-item {
+          text-align: center;
+          padding: 12px;
+          background: #f8fcff;
+          border-radius: 12px;
+          min-width: 80px;
+
+          .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+          }
+
+          .stat-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #87ceeb;
+          }
+        }
+      }
+
+      .total-12hour {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #87ceeb;
+        border-radius: 12px;
+        color: white;
+
+        .total-label {
+          font-size: 16px;
+        }
+
+        .total-value {
+          font-size: 24px;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+
+  .period-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+
+    .period-item {
+      flex: 1;
+      padding: 16px 12px;
+      background: white;
+      border-radius: 12px;
+      text-align: center;
+      border: 2px solid #e6f7ff;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+      &.active {
+        background: #87ceeb;
+        border-color: #87ceeb;
+        color: white;
+
+        .period-label,
+        .period-time {
+          color: white;
+        }
+      }
+
+      .period-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 4px;
+      }
+
+      .period-time {
+        font-size: 12px;
+        color: #666;
+      }
+    }
+  }
+
+  .counter-section {
+    background: white;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(135, 206, 235, 0.2);
+    margin-bottom: 24px;
+
+    .timer-display {
+      margin-bottom: 32px;
+
+      .timer-text {
+        font-size: 48px;
+        font-weight: 700;
+        color: #87ceeb;
+        font-family: "Courier New", monospace;
+        margin-bottom: 16px;
+      }
+    }
+
+    .count-display {
+      margin-bottom: 40px;
+
+      .count-number {
+        font-size: 72px;
+        font-weight: 800;
+        color: #2c3e50;
+        line-height: 1;
+        margin-bottom: 8px;
+      }
+
+      .count-label {
+        font-size: 18px;
+        color: #666;
+      }
+    }
+
+    .count-button-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .start-button {
+        background: linear-gradient(135deg, #87ceeb 0%, #5dade2 100%);
+        border: none;
+        border-radius: 50px;
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+        height: 56px;
+        box-shadow: 0 4px 12px rgba(135, 206, 235, 0.4);
+      }
+
+      .count-button {
+        background: linear-gradient(135deg, #52c41a 0%, #73d13d 100%);
+        border: none;
+        border-radius: 50px;
+        font-size: 20px;
+        font-weight: 700;
+        color: white;
+        height: 64px;
+        box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4);
+        transition: all 0.2s ease;
+
+        &:active {
+          transform: scale(0.95);
+        }
+      }
+
+      .stop-button {
+        border: 2px solid #ff4d4f;
+        border-radius: 50px;
+        color: #ff4d4f;
+        font-size: 16px;
+        font-weight: 600;
+        height: 48px;
+        background: white;
+      }
+    }
+  }
+
+  .tips-section {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(135, 206, 235, 0.1);
+
+    .tips-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 12px;
+    }
+
+    .tips-item {
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 8px;
+      padding-left: 8px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+/* 小程序特定样式调整 */
+@media screen and (max-width: 750px) {
+  .fetal-count-page {
+    padding: 16px;
+
+    .counter-section {
+      .count-display {
+        .count-number {
+          font-size: 64px;
+        }
+      }
+
+      .timer-display {
+        .timer-text {
+          font-size: 40px;
+        }
+      }
+    }
+  }
+}

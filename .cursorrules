@@ -1,0 +1,123 @@
+{
+  "rules": [
+    {
+      "name": "禁止在组件文件中使用内联样式",
+      "pattern": "style={{.*}}",
+      "message": "请使用Sass或TailwindCSS类代替内联样式",
+      "severity": "warning",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "推荐使用函数组件",
+      "pattern": "class\\s+\\w+\\s+extends\\s+React\\.Component",
+      "message": "推荐使用函数组件和React Hooks代替类组件",
+      "severity": "suggestion",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "状态管理提示",
+      "pattern": "const\\s+\\[\\w+,\\s*set\\w+\\]\\s*=\\s*useState",
+      "message": "考虑对于复杂状态使用useReducer或状态管理库",
+      "severity": "information",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "推荐使用TypeScript类型",
+      "pattern": "(any|Function|Object)(?![\\w-])",
+      "message": "尽量避免使用any、Function或Object类型，请使用更具体的类型",
+      "severity": "warning",
+      "include": ["src/**/*.ts", "src/**/*.tsx"]
+    },
+    {
+      "name": "Promise错误处理",
+      "pattern": "\\.then\\(.*\\)(?!\\.catch)",
+      "message": "Promise应该包含错误处理（.catch或try/catch）",
+      "severity": "warning",
+      "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"]
+    },
+    {
+      "name": "Taro生命周期",
+      "pattern": "componentWillMount|componentWillReceiveProps|componentWillUpdate",
+      "message": "这些生命周期方法已被弃用，请使用新的生命周期方法",
+      "severity": "warning",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "TailwindCSS类排序",
+      "pattern": "className=\"[^\"]{80,}\"",
+      "message": "考虑对长className字符串进行排序或分组以提高可读性",
+      "severity": "suggestion",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "避免过长函数",
+      "pattern": "function\\s+\\w+[\\s\\S]{500,}?\\}|const\\s+\\w+\\s*=\\s*\\([^)]*\\)\\s*=>\\s*[\\s\\S]{500,}?\\}",
+      "message": "函数过长，考虑拆分为更小的函数",
+      "severity": "warning",
+      "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"]
+    },
+    {
+      "name": "文件导入顺序",
+      "pattern": "^import\\s+.*?\\s+from\\s+['\"](@tarojs|react).*?['\"];?\\s*^import\\s+.*?\\s+from\\s+['\"][^\\.@]",
+      "message": "导入顺序应为：1.React/Taro相关 2.第三方库 3.本地组件/工具",
+      "severity": "suggestion",
+      "include": ["src/**/*.ts", "src/**/*.tsx"]
+    },
+    {
+      "name": "推荐使用函数式更新状态",
+      "pattern": "set\\w+\\([^(].*?\\)",
+      "message": "当更新基于先前状态时，推荐使用函数式更新如setState(prev => ...)",
+      "severity": "suggestion",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "推荐使用memo包装组件",
+      "pattern": "export\\s+(default\\s+)?function\\s+\\w+",
+      "message": "考虑使用React.memo包装组件以避免不必要的重新渲染",
+      "severity": "information",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "检查重复导入",
+      "pattern": "import\\s+.*?\\s+from\\s+['\"]([^'\"]+)['\"];?.*?import\\s+.*?\\s+from\\s+['\"]\\1['\"];?",
+      "message": "检测到可能的重复导入",
+      "severity": "warning",
+      "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"]
+    },
+    {
+      "name": "避免TailwindCSS类重复",
+      "pattern": "className=\".*?(\\b\\w+-\\w+\\b).*?\\1.*?\"",
+      "message": "className中存在重复的TailwindCSS类名",
+      "severity": "warning",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "推荐使用TailwindCSS响应式类",
+      "pattern": "className=\"[^\"]*?(w-\\d+|h-\\d+)[^\"]*?\"",
+      "message": "考虑使用响应式类如sm:w-10 md:w-20处理不同屏幕尺寸",
+      "severity": "suggestion",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "避免原生CSS样式表",
+      "pattern": "import\\s+['\"].*?\\.css['\"]",
+      "message": "推荐使用TailwindCSS类或Sass代替原生CSS",
+      "severity": "suggestion",
+      "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js", "src/**/*.jsx"]
+    },
+    {
+      "name": "检查TailwindCSS未知类名",
+      "pattern": "className=\".*?\\b((?!(text|bg|flex|grid|p|m|w|h|rounded|border|shadow|hover|focus|active|sm:|md:|lg:|xl:|2xl:)).+?-\\w+)\\b.*?\"",
+      "message": "可能使用了非标准TailwindCSS类名，请检查拼写",
+      "severity": "information",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    },
+    {
+      "name": "TailwindCSS类命名风格",
+      "pattern": "className=\"\\s*[^\"]*?\\b(\\w+:\\w+:\\w+)\\b.*?\"",
+      "message": "TailwindCSS类名应按照层次结构组织，如group-hover:bg-gray-200",
+      "severity": "suggestion",
+      "include": ["src/**/*.tsx", "src/**/*.jsx"]
+    }
+  ]
+}
