@@ -287,120 +287,137 @@ export default function FetalCount() {
   }, []);
 
   return (
-    <View className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-50 relative overflow-hidden">
-      <View className="px-4 py-6 flex-1">
-        {/* Tips提示 - 独立卡片 */}
-        <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4 shadow-sm">
-          <View className="flex items-center">
-            <Text className="text-base mr-2">💡</Text>
-            <Text className="text-sm text-amber-700 flex-1">
-              5分钟内连续活动只算作一次胎动
-            </Text>
+    <View className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-orange-50">
+      <View className="px-6 py-2">
+        {/* 温馨提示 */}
+        <View className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 mb-6 border border-amber-200/60 ">
+          <View className="flex items-start">
+            <Text className="text-lg mr-3 mt-0.5">💡</Text>
+            <View className="flex-1">
+              <Text className="text-sm font-semibold text-amber-800 mb-1">
+                温馨提示
+              </Text>
+              <Text className="text-sm text-amber-700 leading-relaxed">
+                5分钟内连续活动只算一次胎动～
+              </Text>
+            </View>
           </View>
         </View>
 
-        {/* 主功能区 */}
-        <View className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg shadow-sky-100/50 p-8 mb-6">
-          {/* 第一部分：倒计时/实际点击/有效计数 */}
+        {/* 主计数区域 */}
+        <View className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 mb-6 shadow-xl shadow-pink-200/40 border border-pink-100/50">
+          {/* 倒计时显示 */}
           <View className="text-center mb-8">
-            {/* 倒计时显示 */}
-            <View className="mb-6">
-              <Text className="text-4xl font-mono font-bold text-sky-600 mb-2">
+            <View className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 mb-4 border border-blue-100">
+              <Text className="text-5xl font-mono font-bold text-pink-600 mb-2">
                 {formatTime(remainingTime)}
               </Text>
-              <Text className="text-sm text-gray-500">
-                {isActive ? "剩余时间" : "倒计时"}
+              <Text className="text-sm text-gray-800 font-medium">
+                {isActive ? "记录中..." : "准备开始"}
               </Text>
             </View>
 
-            {/* 统计数据 */}
+            {/* 实时统计 */}
             {isActive && (
-              <View className="flex justify-center space-x-8 mb-6">
-                <View className="text-center">
-                  <Text className="text-2xl font-bold text-gray-800">
+              <View className="flex justify-center space-x-4">
+                <View className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 min-w-18 border border-gray-200">
+                  <Text className="text-xl font-bold text-pink-600">
                     {totalClicks}
                   </Text>
-                  <Text className="text-xs text-gray-500">实际点击</Text>
+                  <Text className="text-xs text-gray-800 font-medium">
+                    总点击
+                  </Text>
                 </View>
-                <View className="text-center">
-                  <Text className="text-2xl font-bold text-sky-600">
+                <View className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-4 min-w-18 border border-pink-200">
+                  <Text className="text-xl font-bold text-pink-600">
                     {currentCount}
                   </Text>
-                  <Text className="text-xs text-gray-500">有效计数</Text>
+                  <Text className="text-xs text-gray-800 font-medium">
+                    有效次数
+                  </Text>
                 </View>
               </View>
             )}
           </View>
 
-          {/* 第二部分：大型按钮 */}
+          {/* 主按钮 */}
           <View className="flex justify-center">
             <Button
-              className={`w-40 h-40 rounded-full text-xl font-bold transition-all duration-200 flex flex-col items-center justify-center ${
+              className={`w-44 h-44 rounded-full text-lg font-semibold transition-all duration-300 flex flex-col items-center justify-center shadow-2xl border-4 ${
                 !isActive
-                  ? "bg-gradient-to-br from-sky-400 to-sky-500 text-white shadow-lg shadow-sky-200"
-                  : "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-lg shadow-green-200"
+                  ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-blue-200 border-blue-300"
+                  : "bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-pink-200 border-pink-300"
               }`}
               onClick={handleMainButton}
             >
               {!isActive ? (
-                "开始"
+                <View className="flex flex-col items-center justify-center">
+                  <Text className="text-4xl mb-2">🎯</Text>
+                  <Text className="text-lg font-semibold">开始记录</Text>
+                </View>
               ) : (
                 <View className="flex flex-col items-center justify-center">
-                  <Text className="text-4xl mb-1">👣</Text>
-                  <Text className="text-base font-bold">动一下，点一下</Text>
+                  <Text className="text-4xl mb-2">👶</Text>
+                  <Text className="text-base font-semibold">感受到了吗？</Text>
+                  <Text className="text-sm opacity-90">轻触记录</Text>
                 </View>
               )}
             </Button>
           </View>
         </View>
 
-        {/* 数据卡片 */}
-        <View className="space-y-4 mb-20">
-          {/* 今日记录表格 */}
-          {todayStats.todayRecords.length > 0 && (
-            <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-sky-100/30">
-              <View className="flex items-center justify-between mb-3">
-                <View className="text-sm font-medium text-gray-700">
-                  今日胎动情况
-                </View>
-                <View
-                  className="px-3 py-1 bg-sky-50 border border-sky-200 rounded-full"
-                  onClick={viewHistory}
-                >
-                  <Text className="text-xs text-sky-600">查看历史 📊</Text>
-                </View>
+        {/* 今日记录 */}
+        {todayStats.todayRecords.length > 0 && (
+          <View className="bg-white/95 backdrop-blur-sm rounded-3xl p-5 mb-8 shadow-lg shadow-pink-200/30 border border-pink-100/50">
+            <View className="flex items-center justify-between mb-4">
+              <View className="flex items-center">
+                <Text className="text-base font-semibold text-gray-800 mr-2">
+                  今日记录
+                </Text>
+                <Text className="text-lg">📋</Text>
               </View>
+              <View
+                className="px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-full"
+                onClick={viewHistory}
+              >
+                <Text className="text-xs text-blue-600 font-semibold">
+                  查看历史
+                </Text>
+              </View>
+            </View>
 
+            {/* 记录列表 */}
+            <View className="mb-4">
               {/* 表头 */}
-              <View className="flex bg-sky-50 rounded-lg p-2 mb-2">
-                <Text className="flex-1 text-center text-xs font-medium text-sky-700">
+              <View className="flex bg-gradient-to-r from-gray-100 to-slate-100 rounded-xl p-3 mb-3 border border-gray-200">
+                <Text className="flex-1 text-center text-sm font-semibold text-gray-700">
                   开始时间
                 </Text>
-                <Text className="flex-1 text-center text-xs font-medium text-sky-700">
+                <Text className="flex-1 text-center text-sm font-semibold text-gray-700">
                   实际点击
                 </Text>
-                <Text className="flex-1 text-center text-xs font-medium text-sky-700">
-                  有效次数
+                <Text className="flex-1 text-center text-sm font-semibold text-gray-700">
+                  有效胎动
                 </Text>
               </View>
 
               {/* 表格数据 */}
-              <View className="space-y-1">
+              <View className="space-y-2">
                 {todayStats.todayRecords
                   .slice(-5)
                   .reverse()
-                  .map((record) => (
+                  .map((record, index) => (
                     <View
                       key={record.id}
-                      className="flex py-2 border-b border-gray-100 last:border-b-0"
+                      className="flex py-3 px-3 bg-white/80 rounded-xl border border-gray-200/60"
                     >
-                      <Text className="flex-1 text-center text-sm text-gray-800">
+                      <Text className="flex-1 text-center text-sm font-semibold text-pink-600">
                         {formatStartTime(record.startTime)}
                       </Text>
-                      <Text className="flex-1 text-center text-sm text-gray-600">
+                      <Text className="flex-1 text-center text-sm font-bold text-pink-600">
                         {record.totalClicks}
                       </Text>
-                      <Text className="flex-1 text-center text-sm text-sky-600 font-medium">
+                      <Text className="flex-1 text-center text-sm font-bold text-pink-600">
                         {record.validCount}
                       </Text>
                     </View>
@@ -408,13 +425,37 @@ export default function FetalCount() {
               </View>
 
               {todayStats.todayRecords.length > 5 && (
-                <Text className="text-xs text-gray-400 text-center mt-2">
+                <Text className="text-xs text-gray-500 text-center mt-2">
                   仅显示最近5条记录
                 </Text>
               )}
             </View>
-          )}
-        </View>
+
+            {/* 12小时胎动数 */}
+            <View className="p-4 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl border border-pink-200">
+              <Text className="text-sm font-medium text-gray-800 text-center">
+                预估12小时胎动数：
+                <Text className="text-pink-600 font-bold text-lg">
+                  {todayStats.totalSessions > 0
+                    ? Math.round(
+                        (todayStats.totalCounts / todayStats.totalSessions) * 12
+                      )
+                    : 0}
+                </Text>{" "}
+                次
+              </Text>
+              <Text className="text-xs text-gray-600 text-center mt-1">
+                基于今日 {todayStats.totalSessions} 次记录，平均每次{" "}
+                {todayStats.totalSessions > 0
+                  ? (todayStats.totalCounts / todayStats.totalSessions).toFixed(
+                      1
+                    )
+                  : 0}{" "}
+                次胎动
+              </Text>
+            </View>
+          </View>
+        )}
       </View>
     </View>
   );
