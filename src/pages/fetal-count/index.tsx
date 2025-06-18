@@ -4,9 +4,15 @@ import { Button } from "@nutui/nutui-react-taro";
 import Taro from "@tarojs/taro";
 
 interface CountRecord {
-  timestamp: number;
-  count: number;
+  id: string;
+  startTime: number;
+  endTime: number;
+  validCount: number;
+  totalClicks: number;
+  date: string;
 }
+
+const STORAGE_KEY = "fetal_count_records";
 
 export default function FetalCount() {
   const [isActive, setIsActive] = useState(false);
@@ -18,22 +24,155 @@ export default function FetalCount() {
   const [lastRecordTime, setLastRecordTime] = useState(0); // 上次记录胎动的时间
   const timerRef = useRef<NodeJS.Timeout>();
 
+  // 从localStorage加载数据
+  const loadRecordsFromStorage = () => {
+    try {
+      const storedData = Taro.getStorageSync(STORAGE_KEY);
+      if (storedData) {
+        setRecords(JSON.parse(storedData));
+      } else {
+        // 如果没有缓存数据，创建一些假数据用于预览效果
+        const mockData = createMockData();
+        setRecords(mockData);
+        saveRecordsToStorage(mockData);
+      }
+    } catch (error) {
+      console.error("加载数据失败:", error);
+    }
+  };
+
+  // 保存数据到localStorage
+  const saveRecordsToStorage = (newRecords: CountRecord[]) => {
+    try {
+      Taro.setStorageSync(STORAGE_KEY, JSON.stringify(newRecords));
+    } catch (error) {
+      console.error("保存数据失败:", error);
+    }
+  };
+
+  // 创建假数据
+  const createMockData = (): CountRecord[] => {
+    const today = new Date();
+    const todayStr = today.toDateString();
+
+    return [
+      {
+        id: "mock_1",
+        startTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          8,
+          30
+        ).getTime(),
+        endTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          9,
+          30
+        ).getTime(),
+        validCount: 5,
+        totalClicks: 8,
+        date: todayStr,
+      },
+      {
+        id: "mock_2",
+        startTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          12,
+          15
+        ).getTime(),
+        endTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          13,
+          15
+        ).getTime(),
+        validCount: 4,
+        totalClicks: 6,
+        date: todayStr,
+      },
+      {
+        id: "mock_3",
+        startTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          15,
+          45
+        ).getTime(),
+        endTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          16,
+          45
+        ).getTime(),
+        validCount: 6,
+        totalClicks: 9,
+        date: todayStr,
+      },
+      {
+        id: "mock_4",
+        startTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          19,
+          20
+        ).getTime(),
+        endTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          20,
+          20
+        ).getTime(),
+        validCount: 3,
+        totalClicks: 5,
+        date: todayStr,
+      },
+      {
+        id: "mock_5",
+        startTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          21,
+          10
+        ).getTime(),
+        endTime: new Date(
+          today.getFullYear(),
+          today.getMonth(),
+          today.getDate(),
+          22,
+          10
+        ).getTime(),
+        validCount: 7,
+        totalClicks: 12,
+        date: todayStr,
+      },
+    ];
+  };
+
   // 计算今日统计
   const getTodayStats = () => {
     const today = new Date().toDateString();
-    const todayRecords = records.filter(
-      (r) => new Date(r.timestamp).toDateString() === today
-    );
+    const todayRecords = records.filter((r) => r.date === today);
 
     const totalSessions = todayRecords.length;
     const totalCounts = todayRecords.reduce(
-      (sum, record) => sum + record.count,
+      (sum, record) => sum + record.validCount,
       0
     );
     const avgPerHour =
       totalSessions > 0 ? (totalCounts / totalSessions).toFixed(1) : "0";
 
-    return { totalSessions, totalCounts, avgPerHour };
+    return { totalSessions, totalCounts, avgPerHour, todayRecords };
   };
 
   // 格式化时间显示
@@ -41,6 +180,15 @@ export default function FetalCount() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
+  };
+
+  // 格式化开始时间
+  const formatStartTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return `${date.getHours().toString().padStart(2, "0")}:${date
+      .getMinutes()
       .toString()
       .padStart(2, "0")}`;
   };
@@ -59,24 +207,26 @@ export default function FetalCount() {
       timerRef.current = setInterval(() => {
         setRemainingTime((prev) => {
           if (prev <= 1) {
-            // 倒计时结束
+            // 倒计时结束，自动保存记录
+            const endTime = Date.now();
+            const newRecord: CountRecord = {
+              id: `${sessionStartTime}_${endTime}`,
+              startTime: sessionStartTime,
+              endTime: endTime,
+              validCount: currentCount,
+              totalClicks: totalClicks,
+              date: new Date(sessionStartTime).toDateString(),
+            };
+
+            const updatedRecords = [...records, newRecord];
+            setRecords(updatedRecords);
+            saveRecordsToStorage(updatedRecords);
+
+            // 重置状态
             setIsActive(false);
             if (timerRef.current) {
               clearInterval(timerRef.current);
             }
-
-            // 保存本次记录
-            const newRecord: CountRecord = {
-              timestamp: Date.now(),
-              count: currentCount,
-            };
-            setRecords((prevRecords) => [...prevRecords, newRecord]);
-
-            Taro.showToast({
-              title: `计时完成！记录${currentCount}次胎动`,
-              icon: "success",
-              duration: 2000,
-            });
 
             return 0;
           }
@@ -91,11 +241,6 @@ export default function FetalCount() {
       // 检查是否在5分钟内（连续胎动只算1次）
       if (lastRecordTime && now - lastRecordTime < 5 * 60 * 1000) {
         // 5分钟内，只增加点击次数，不增加有效计数
-        Taro.showToast({
-          title: "5分钟内连续活动只算1次",
-          icon: "none",
-          duration: 1500,
-        });
       } else {
         // 超过5分钟或首次点击，算作有效胎动
         setCurrentCount((prev) => prev + 1);
@@ -103,13 +248,6 @@ export default function FetalCount() {
 
         // 震动反馈
         Taro.vibrateShort();
-
-        // 触觉反馈提示
-        Taro.showToast({
-          title: "胎动已记录",
-          icon: "success",
-          duration: 800,
-        });
       }
     }
   };
@@ -138,6 +276,9 @@ export default function FetalCount() {
   const todayStats = getTodayStats();
 
   useEffect(() => {
+    // 组件加载时读取缓存数据
+    loadRecordsFromStorage();
+
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -147,10 +288,6 @@ export default function FetalCount() {
 
   return (
     <View className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-50 relative overflow-hidden">
-      {/* 背景装饰 - 孕肚轮廓 */}
-      <View className="absolute top-20 right-8 w-32 h-40 rounded-full bg-gradient-to-br from-sky-100/30 to-blue-100/30 opacity-60"></View>
-      <View className="absolute bottom-32 left-8 w-24 h-32 rounded-full bg-gradient-to-br from-sky-100/20 to-blue-100/20 opacity-40"></View>
-
       {/* 顶部导航栏 */}
       <View className="flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-sm border-b border-sky-100">
         <View
@@ -236,31 +373,56 @@ export default function FetalCount() {
 
         {/* 数据卡片 */}
         <View className="space-y-4 mb-20">
-          {/* 当日统计 */}
-          <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-sky-100/30">
-            <Text className="text-sm font-medium text-gray-700 mb-2">
-              今日统计
-            </Text>
-            <Text className="text-lg text-gray-800">
-              已完成 {todayStats.totalSessions} 次，平均 {todayStats.avgPerHour}{" "}
-              次/小时
-            </Text>
-          </View>
+          {/* 今日记录表格 */}
+          {todayStats.todayRecords.length > 0 && (
+            <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-sky-100/30">
+              <View className="text-sm font-medium text-gray-700 mb-3">
+                今日胎动情况
+              </View>
 
-          {/* 健康提示 */}
-          <View className="bg-gradient-to-r from-sky-50 to-blue-50 rounded-2xl p-4 border border-sky-100">
-            <View className="flex items-center">
-              <Text className="text-lg mr-2">💡</Text>
-              <View>
-                <Text className="text-sm font-medium text-sky-700">
-                  健康提示
+              {/* 表头 */}
+              <View className="flex bg-sky-50 rounded-lg p-2 mb-2">
+                <Text className="flex-1 text-center text-xs font-medium text-sky-700">
+                  开始时间
                 </Text>
-                <Text className="text-sm text-sky-600">
-                  正常范围：＞3次/小时
+                <Text className="flex-1 text-center text-xs font-medium text-sky-700">
+                  实际点击
+                </Text>
+                <Text className="flex-1 text-center text-xs font-medium text-sky-700">
+                  有效次数
                 </Text>
               </View>
+
+              {/* 表格数据 */}
+              <View className="space-y-1">
+                {todayStats.todayRecords
+                  .slice(-5)
+                  .reverse()
+                  .map((record) => (
+                    <View
+                      key={record.id}
+                      className="flex py-2 border-b border-gray-100 last:border-b-0"
+                    >
+                      <Text className="flex-1 text-center text-sm text-gray-800">
+                        {formatStartTime(record.startTime)}
+                      </Text>
+                      <Text className="flex-1 text-center text-sm text-gray-600">
+                        {record.totalClicks}
+                      </Text>
+                      <Text className="flex-1 text-center text-sm text-sky-600 font-medium">
+                        {record.validCount}
+                      </Text>
+                    </View>
+                  ))}
+              </View>
+
+              {todayStats.todayRecords.length > 5 && (
+                <Text className="text-xs text-gray-400 text-center mt-2">
+                  仅显示最近5条记录
+                </Text>
+              )}
             </View>
-          </View>
+          )}
         </View>
       </View>
     </View>
