@@ -288,36 +288,19 @@ export default function FetalCount() {
 
   return (
     <View className="min-h-screen bg-gradient-to-b from-sky-50 to-blue-50 relative overflow-hidden">
-      {/* 顶部导航栏 */}
-      <View className="flex items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-sm border-b border-sky-100">
-        <View
-          className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"
-          onClick={goBack}
-        >
-          <Text className="text-sky-600 text-lg">←</Text>
-        </View>
-        <Text className="text-lg font-medium text-gray-800">胎动记录</Text>
-        <View
-          className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center"
-          onClick={viewHistory}
-        >
-          <Text className="text-sky-600 text-sm">📊</Text>
-        </View>
-      </View>
-
       <View className="px-4 py-6 flex-1">
+        {/* Tips提示 - 独立卡片 */}
+        <View className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4 shadow-sm">
+          <View className="flex items-center">
+            <Text className="text-base mr-2">💡</Text>
+            <Text className="text-sm text-amber-700 flex-1">
+              5分钟内连续活动只算作一次胎动
+            </Text>
+          </View>
+        </View>
+
         {/* 主功能区 */}
         <View className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-lg shadow-sky-100/50 p-8 mb-6">
-          {/* Tips提示 */}
-          <View className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-6">
-            <View className="flex items-center">
-              <Text className="text-base mr-2">💡</Text>
-              <Text className="text-sm text-amber-700 flex-1">
-                5分钟内连续活动只算作一次胎动
-              </Text>
-            </View>
-          </View>
-
           {/* 第一部分：倒计时/实际点击/有效计数 */}
           <View className="text-center mb-8">
             {/* 倒计时显示 */}
@@ -376,8 +359,16 @@ export default function FetalCount() {
           {/* 今日记录表格 */}
           {todayStats.todayRecords.length > 0 && (
             <View className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-sky-100/30">
-              <View className="text-sm font-medium text-gray-700 mb-3">
-                今日胎动情况
+              <View className="flex items-center justify-between mb-3">
+                <View className="text-sm font-medium text-gray-700">
+                  今日胎动情况
+                </View>
+                <View
+                  className="px-3 py-1 bg-sky-50 border border-sky-200 rounded-full"
+                  onClick={viewHistory}
+                >
+                  <Text className="text-xs text-sky-600">查看历史 📊</Text>
+                </View>
               </View>
 
               {/* 表头 */}
