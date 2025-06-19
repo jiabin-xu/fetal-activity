@@ -2,17 +2,9 @@ import { View, Text } from "@tarojs/components";
 import { Button } from "@nutui/nutui-react-taro";
 import { formatDuration } from "../../utils/contractionUtils";
 
-interface TodayStats {
-  totalCount: number;
-  avgDuration: number;
-  avgInterval: number;
-  todayRecords: any[];
-}
-
 interface RecordingAreaProps {
   elapsedTime: number;
   isRecording: boolean;
-  todayStats: TodayStats;
   onStart: () => void;
   onStop: () => void;
 }
@@ -20,7 +12,6 @@ interface RecordingAreaProps {
 export const RecordingArea = ({
   elapsedTime,
   isRecording,
-  todayStats,
   onStart,
   onStop,
 }: RecordingAreaProps) => {
@@ -36,28 +27,6 @@ export const RecordingArea = ({
             {isRecording ? "宫缩进行中..." : "等待开始"}
           </Text>
         </View>
-
-        {/* 今日统计 */}
-        {todayStats.totalCount > 0 && (
-          <View className="flex justify-center space-x-4">
-            <View className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-4 min-w-18 border border-gray-200">
-              <Text className="text-xl font-bold text-pink-600">
-                {todayStats.totalCount}
-              </Text>
-              <Text className="text-xs text-gray-800 font-medium">
-                今日次数
-              </Text>
-            </View>
-            <View className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-xl p-4 min-w-18 border border-pink-200">
-              <Text className="text-xl font-bold text-pink-600">
-                {todayStats.avgDuration}
-              </Text>
-              <Text className="text-xs text-gray-800 font-medium">
-                平均时长(秒)
-              </Text>
-            </View>
-          </View>
-        )}
       </View>
 
       {/* 主按钮 */}

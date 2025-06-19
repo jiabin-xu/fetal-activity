@@ -25,7 +25,6 @@ export default function ContractionRecord() {
         <RecordingArea
           elapsedTime={elapsedTime}
           isRecording={isRecording}
-          todayStats={todayStats}
           onStart={startRecording}
           onStop={stopRecording}
         />

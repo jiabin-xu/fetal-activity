@@ -7,6 +7,12 @@ export interface ContractionRecord {
   duration: number; // 持续时间（秒）
 }
 
+export interface ProcessedContractionRecord extends ContractionRecord {
+  intervalSeconds: number; // 间隔时间（秒）
+  showDash: boolean; // 是否显示 "--:--"
+  isLabor: boolean; // 是否显示临产标签
+}
+
 const STORAGE_KEY = 'contraction_records';
 
 export const useContractionRecords = () => {
@@ -37,12 +43,6 @@ export const useContractionRecords = () => {
     }
   };
 
-  // 获取今日记录
-  const getTodayRecords = () => {
-    const today = new Date().toDateString();
-    return records.filter(r => new Date(r.id).toDateString() === today);
-  };
-
   // 计算间隔时间
   const calculateInterval = (currentRecord: ContractionRecord, previousRecord: ContractionRecord) => {
     return dayjs(currentRecord.id).diff(dayjs(previousRecord.id), 'seconds');
@@ -50,25 +50,36 @@ export const useContractionRecords = () => {
 
   // 获取今日统计数据
   const getTodayStats = () => {
-    const todayRecords = getTodayRecords().sort((a, b) => parseInt(a.id) - parseInt(b.id));
+    const today = dayjs().format('YYYY-MM-DD');
+    const todayRecords = records.filter((r) => r.id.includes(today));
 
-    const totalCount = todayRecords.length;
-    const avgDuration = totalCount > 0 ?
-      Math.round(todayRecords.reduce((sum, r) => sum + r.duration, 0) / totalCount) : 0;
+    // 处理每条记录的展示数据
+    const processedRecords: ProcessedContractionRecord[] = todayRecords.map((record, index) => {
+      let intervalSeconds = 0;
+      let showDash = true;
+      let isLabor = false;
 
-    let avgInterval = 0;
-    if (totalCount > 1) {
-      const intervals = todayRecords.slice(1).map((record, index) =>
-        calculateInterval(record, todayRecords[index])
-      );
-      avgInterval = Math.round(intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length);
-    }
+      // 不是第一条记录时计算间隔
+      if (index > 0) {
+        const previousRecord = todayRecords[index - 1];
+        intervalSeconds = calculateInterval(record, previousRecord);
+
+        // 间隔时间 > 60分钟显示 "--:--"
+        showDash = intervalSeconds > 3600;
+        // 间隔时间 < 5分钟显示临产标签
+        isLabor = intervalSeconds > 0 && intervalSeconds < 300;
+      }
+
+      return {
+        ...record,
+        intervalSeconds,
+        showDash,
+        isLabor
+      };
+    });
 
     return {
-      totalCount,
-      avgDuration,
-      avgInterval,
-      todayRecords
+      todayRecords: processedRecords
     };
   };
 
@@ -94,7 +105,7 @@ export const useContractionRecords = () => {
     const duration = Math.round((now - currentStartTime) / 1000);
 
     const newRecord: ContractionRecord = {
-      id: currentStartTime.toString(),
+      id: dayjs(currentStartTime).format('YYYY-MM-DD HH:mm:ss'),
       duration: duration,
     };
 
