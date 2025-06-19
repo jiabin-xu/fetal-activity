@@ -29,12 +29,8 @@ export const CounterDisplay = ({
 
       {isActive && (
         <View className="flex justify-center space-x-4">
-          <StatBox value={totalClicks || 0} label="总点击" variant="default" />
-          <StatBox
-            value={currentCount || 0}
-            label="有效次数"
-            variant="primary"
-          />
+          <StatBox value={totalClicks || 0} label=" 实际点击" />
+          <StatBox value={currentCount || 0} label=" 有效次数" />
         </View>
       )}
     </View>
