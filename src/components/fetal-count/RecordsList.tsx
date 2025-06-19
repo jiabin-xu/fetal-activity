@@ -21,9 +21,8 @@ export const RecordsList = ({
   totalCounts,
 }: RecordsListProps) => {
   const viewHistory = () => {
-    Taro.showToast({
-      title: "历史记录功能开发中",
-      icon: "none",
+    Taro.navigateTo({
+      url: "/pages/history/index",
     });
   };
 

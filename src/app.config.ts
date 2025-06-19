@@ -2,6 +2,7 @@ export default defineAppConfig({
   pages: [
     'pages/fetal-count/index',
     'pages/contraction/index',
+    'pages/history/index',
     'pages/index/index',
   ],
   window: {

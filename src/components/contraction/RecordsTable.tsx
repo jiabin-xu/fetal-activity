@@ -21,9 +21,8 @@ export const RecordsTable = ({
     if (onViewHistory) {
       onViewHistory();
     } else {
-      Taro.showToast({
-        title: "历史记录功能开发中",
-        icon: "none",
+      Taro.navigateTo({
+        url: "/pages/history/index",
       });
     }
   };
