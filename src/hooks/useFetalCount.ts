@@ -10,8 +10,9 @@ interface CountRecord {
 }
 
 const STORAGE_KEY = 'fetal_count_records';
-const VALID_INTERVAL = 5 * 60 * 1000; // 5分钟间隔
-const SESSION_DURATION = 60; // 1小时
+const UNIT = 1
+const VALID_INTERVAL = 5 * UNIT * 1000; // 5分钟间隔
+const SESSION_DURATION = 60 * UNIT; // 1小时
 
 export const useFetalCount = () => {
   const [isActive, setIsActive] = useState(false);
@@ -21,6 +22,19 @@ export const useFetalCount = () => {
   const [records, setRecords] = useState<CountRecord[]>([]);
   const [lastRecordTime, setLastRecordTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout>();
+
+  // 使用 ref 保存最新的状态值
+  const validCountRef = useRef(0);
+  const totalClicksRef = useRef(0);
+
+  // 同步状态到 ref
+  useEffect(() => {
+    validCountRef.current = validCount;
+  }, [validCount]);
+
+  useEffect(() => {
+    totalClicksRef.current = totalClicks;
+  }, [totalClicks]);
 
   const loadRecordsFromStorage = () => {
     try {
@@ -41,8 +55,6 @@ export const useFetalCount = () => {
     }
   };
 
-
-
   const startSession = () => {
     setIsActive(true);
     setValidCount(0);
@@ -62,11 +74,13 @@ export const useFetalCount = () => {
   };
 
   const endSession = () => {
+    // 使用 ref 获取最新的状态值
     const newRecord: CountRecord = {
       id: dayjs().subtract(1, 'hour').format('YYYY-MM-DD HH:mm'),
-      validCount,
-      totalClicks,
+      validCount: validCountRef.current,
+      totalClicks: totalClicksRef.current,
     };
+    console.log('newRecord', validCountRef.current);
 
     const updatedRecords = [...records, newRecord];
     setRecords(updatedRecords);
@@ -77,6 +91,8 @@ export const useFetalCount = () => {
       clearInterval(timerRef.current);
     }
   };
+
+  console.log('validCount', validCount);
 
   const recordMovement = () => {
     const now = Date.now();

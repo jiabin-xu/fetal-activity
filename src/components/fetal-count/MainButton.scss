@@ -52,6 +52,17 @@
 
 .baby-icon {
   animation: breathe 4s ease-in-out infinite;
+
+  // 去掉图片的默认点击/长按效果
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  outline: none;
+  pointer-events: none; // 阻止图片接收点击事件
 }
 
 .start-text {
