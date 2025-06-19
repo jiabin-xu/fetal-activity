@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 
 interface Record {
   id: string;
-  startTime: number;
   totalClicks: number;
   validCount: number;
 }
@@ -27,9 +26,6 @@ export const RecordsList = ({
       icon: "none",
     });
   };
-
-  console.log("records", records);
-  console.log("totalSessions", dayjs("2025-06-19 10:00", "YYYY-MM-DD HH:mm"));
 
   return (
     <Card variant="default" className="p-5 mb-8">

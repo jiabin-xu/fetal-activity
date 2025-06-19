@@ -7,14 +7,14 @@ interface CounterDisplayProps {
   remainingTime: number;
   isActive: boolean;
   totalClicks?: number;
-  currentCount?: number;
+  validCount?: number;
 }
 
 export const CounterDisplay = ({
   remainingTime,
   isActive,
   totalClicks,
-  currentCount,
+  validCount,
 }: CounterDisplayProps) => {
   return (
     <View className="text-center mb-8">
@@ -30,7 +30,7 @@ export const CounterDisplay = ({
       {isActive && (
         <View className="flex justify-center space-x-4">
           <StatBox value={totalClicks || 0} label=" 实际点击" />
-          <StatBox value={currentCount || 0} label=" 有效次数" />
+          <StatBox value={validCount || 0} label=" 有效次数" />
         </View>
       )}
     </View>

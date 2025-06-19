@@ -15,14 +15,13 @@ const SESSION_DURATION = 60; // 1小时
 
 export const useFetalCount = () => {
   const [isActive, setIsActive] = useState(false);
-  const [currentCount, setCurrentCount] = useState(0);
+  const [validCount, setValidCount] = useState(0);
   const [remainingTime, setRemainingTime] = useState(SESSION_DURATION);
   const [totalClicks, setTotalClicks] = useState(0);
   const [records, setRecords] = useState<CountRecord[]>([]);
   const [lastRecordTime, setLastRecordTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout>();
 
-  console.log('records', records);
   const loadRecordsFromStorage = () => {
     try {
       const storedData = Taro.getStorageSync(STORAGE_KEY);
@@ -46,7 +45,7 @@ export const useFetalCount = () => {
 
   const startSession = () => {
     setIsActive(true);
-    setCurrentCount(0);
+    setValidCount(0);
     setTotalClicks(0);
     setRemainingTime(SESSION_DURATION);
     setLastRecordTime(0);
@@ -65,7 +64,7 @@ export const useFetalCount = () => {
   const endSession = () => {
     const newRecord: CountRecord = {
       id: dayjs().subtract(1, 'hour').format('YYYY-MM-DD HH:mm'),
-      validCount: currentCount,
+      validCount,
       totalClicks,
     };
 
@@ -84,10 +83,11 @@ export const useFetalCount = () => {
     setTotalClicks((prev) => prev + 1);
 
     if (!lastRecordTime || now - lastRecordTime >= VALID_INTERVAL) {
-      setCurrentCount((prev) => prev + 1);
+      setValidCount((prev) => prev + 1);
       setLastRecordTime(now);
-      Taro.vibrateShort();
+
     }
+    Taro.vibrateShort();
   };
 
   const getTodayStats = () => {
@@ -112,7 +112,7 @@ export const useFetalCount = () => {
 
   return {
     isActive,
-    currentCount,
+    validCount,
     remainingTime,
     totalClicks,
     records,

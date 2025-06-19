@@ -9,7 +9,7 @@ import { RecordsList } from "@/components/fetal-count/RecordsList";
 export default function FetalCount() {
   const {
     isActive,
-    currentCount,
+    validCount,
     remainingTime,
     totalClicks,
     startSession,
@@ -37,7 +37,7 @@ export default function FetalCount() {
             remainingTime={remainingTime}
             isActive={isActive}
             totalClicks={totalClicks}
-            currentCount={currentCount}
+            validCount={validCount}
           />
           <MainButton isActive={isActive} onClick={handleMainButton} />
         </Card>
