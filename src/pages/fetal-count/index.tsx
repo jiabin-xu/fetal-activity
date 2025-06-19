@@ -42,13 +42,11 @@ export default function FetalCount() {
           <MainButton isActive={isActive} onClick={handleMainButton} />
         </Card>
 
-        {todayStats.todayRecords.length > 0 && (
-          <RecordsList
-            records={todayStats.todayRecords}
-            totalSessions={todayStats.totalSessions}
-            totalCounts={todayStats.totalCounts}
-          />
-        )}
+        <RecordsList
+          records={todayStats.todayRecords}
+          totalSessions={todayStats.totalSessions}
+          totalCounts={todayStats.totalCounts}
+        />
       </View>
     </View>
   );

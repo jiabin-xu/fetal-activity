@@ -1,37 +1,33 @@
 import { useState, useEffect, useRef } from 'react';
 import Taro from '@tarojs/taro';
+import dayjs from 'dayjs';
 
 interface CountRecord {
   id: string;
-  startTime: number;
-  endTime: number;
   validCount: number;
   totalClicks: number;
-  date: string;
+
 }
 
 const STORAGE_KEY = 'fetal_count_records';
 const VALID_INTERVAL = 5 * 60 * 1000; // 5分钟间隔
+const SESSION_DURATION = 60; // 1小时
 
 export const useFetalCount = () => {
   const [isActive, setIsActive] = useState(false);
   const [currentCount, setCurrentCount] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(3600);
+  const [remainingTime, setRemainingTime] = useState(SESSION_DURATION);
   const [totalClicks, setTotalClicks] = useState(0);
   const [records, setRecords] = useState<CountRecord[]>([]);
-  const [sessionStartTime, setSessionStartTime] = useState(0);
   const [lastRecordTime, setLastRecordTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout>();
 
+  console.log('records', records);
   const loadRecordsFromStorage = () => {
     try {
       const storedData = Taro.getStorageSync(STORAGE_KEY);
       if (storedData) {
         setRecords(JSON.parse(storedData));
-      } else {
-        const mockData = createMockData();
-        setRecords(mockData);
-        saveRecordsToStorage(mockData);
       }
     } catch (error) {
       console.error('加载数据失败:', error);
@@ -46,30 +42,14 @@ export const useFetalCount = () => {
     }
   };
 
-  const createMockData = (): CountRecord[] => {
-    const today = new Date();
-    const todayStr = today.toDateString();
 
-    return [
-      {
-        id: 'mock_1',
-        startTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 8, 30).getTime(),
-        endTime: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30).getTime(),
-        validCount: 5,
-        totalClicks: 8,
-        date: todayStr,
-      },
-      // ... 其他模拟数据
-    ];
-  };
 
   const startSession = () => {
     setIsActive(true);
     setCurrentCount(0);
     setTotalClicks(0);
-    setRemainingTime(3600);
+    setRemainingTime(SESSION_DURATION);
     setLastRecordTime(0);
-    setSessionStartTime(Date.now());
 
     timerRef.current = setInterval(() => {
       setRemainingTime((prev) => {
@@ -83,14 +63,10 @@ export const useFetalCount = () => {
   };
 
   const endSession = () => {
-    const endTime = Date.now();
     const newRecord: CountRecord = {
-      id: `${sessionStartTime}_${endTime}`,
-      startTime: sessionStartTime,
-      endTime,
+      id: dayjs().subtract(1, 'hour').format('YYYY-MM-DD HH:mm'),
       validCount: currentCount,
       totalClicks,
-      date: new Date(sessionStartTime).toDateString(),
     };
 
     const updatedRecords = [...records, newRecord];
@@ -115,8 +91,8 @@ export const useFetalCount = () => {
   };
 
   const getTodayStats = () => {
-    const today = new Date().toDateString();
-    const todayRecords = records.filter((r) => r.date === today);
+    const today = dayjs().format('YYYY-MM-DD');
+    const todayRecords = records.filter((r) => r.id.includes(today));
 
     const totalSessions = todayRecords.length;
     const totalCounts = todayRecords.reduce((sum, record) => sum + record.validCount, 0);
