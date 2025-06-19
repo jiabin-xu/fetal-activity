@@ -1,13 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import Taro from "@tarojs/taro";
+import dayjs from "dayjs";
 
 export interface ContractionRecord {
-  id: string;
-  startTime: number;
-  endTime: number;
+  id: string; // 使用startTime作为id
   duration: number; // 持续时间（秒）
-  interval: number; // 间隔时间（秒）
-  date: string;
 }
 
 const STORAGE_KEY = 'contraction_records';
@@ -19,50 +16,12 @@ export const useContractionRecords = () => {
   const [records, setRecords] = useState<ContractionRecord[]>([]);
   const timerRef = useRef<NodeJS.Timeout>();
 
-  // 创建假数据
-  const createMockData = (): ContractionRecord[] => {
-    const today = new Date();
-    const todayStr = today.toDateString();
-    const baseTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 14, 0).getTime();
-
-    return [
-      {
-        id: 'mock_1',
-        startTime: baseTime,
-        endTime: baseTime + 45000,
-        duration: 45,
-        interval: 0,
-        date: todayStr,
-      },
-      {
-        id: 'mock_2',
-        startTime: baseTime + 300000,
-        endTime: baseTime + 300000 + 50000,
-        duration: 50,
-        interval: 255,
-        date: todayStr,
-      },
-      {
-        id: 'mock_3',
-        startTime: baseTime + 540000,
-        endTime: baseTime + 540000 + 60000,
-        duration: 60,
-        interval: 190,
-        date: todayStr,
-      },
-    ];
-  };
-
   // 从localStorage加载数据
   const loadRecordsFromStorage = () => {
     try {
       const storedData = Taro.getStorageSync(STORAGE_KEY);
       if (storedData) {
         setRecords(JSON.parse(storedData));
-      } else {
-        const mockData = createMockData();
-        setRecords(mockData);
-        saveRecordsToStorage(mockData);
       }
     } catch (error) {
       console.error('加载数据失败:', error);
@@ -78,17 +37,37 @@ export const useContractionRecords = () => {
     }
   };
 
+  // 获取今日记录
+  const getTodayRecords = () => {
+    const today = new Date().toDateString();
+    return records.filter(r => new Date(r.id).toDateString() === today);
+  };
+
+  // 计算间隔时间
+  const calculateInterval = (currentRecord: ContractionRecord, previousRecord: ContractionRecord) => {
+    return dayjs(currentRecord.id).diff(dayjs(previousRecord.id), 'seconds');
+  };
+
   // 获取今日统计数据
   const getTodayStats = () => {
-    const today = new Date().toDateString();
-    const todayRecords = records.filter(r => r.date === today);
+    const todayRecords = getTodayRecords().sort((a, b) => parseInt(a.id) - parseInt(b.id));
+
+    const totalCount = todayRecords.length;
+    const avgDuration = totalCount > 0 ?
+      Math.round(todayRecords.reduce((sum, r) => sum + r.duration, 0) / totalCount) : 0;
+
+    let avgInterval = 0;
+    if (totalCount > 1) {
+      const intervals = todayRecords.slice(1).map((record, index) =>
+        calculateInterval(record, todayRecords[index])
+      );
+      avgInterval = Math.round(intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length);
+    }
 
     return {
-      totalCount: todayRecords.length,
-      avgDuration: todayRecords.length > 0 ?
-        Math.round(todayRecords.reduce((sum, r) => sum + r.duration, 0) / todayRecords.length) : 0,
-      avgInterval: todayRecords.length > 1 ?
-        Math.round(todayRecords.slice(1).reduce((sum, r) => sum + r.interval, 0) / (todayRecords.length - 1)) : 0,
+      totalCount,
+      avgDuration,
+      avgInterval,
       todayRecords
     };
   };
@@ -114,21 +93,9 @@ export const useContractionRecords = () => {
     const now = Date.now();
     const duration = Math.round((now - currentStartTime) / 1000);
 
-    // 计算与上一次宫缩的间隔
-    const todayRecords = getTodayStats().todayRecords;
-    let interval = 0;
-    if (todayRecords.length > 0) {
-      const lastRecord = todayRecords[todayRecords.length - 1];
-      interval = Math.round((currentStartTime - lastRecord.endTime) / 1000);
-    }
-
     const newRecord: ContractionRecord = {
-      id: `${currentStartTime}_${now}`,
-      startTime: currentStartTime,
-      endTime: now,
+      id: currentStartTime.toString(),
       duration: duration,
-      interval: interval,
-      date: new Date().toDateString(),
     };
 
     const updatedRecords = [...records, newRecord];
@@ -170,5 +137,6 @@ export const useContractionRecords = () => {
     startRecording,
     stopRecording,
     cleanup,
+    calculateInterval,
   };
 };

@@ -1,6 +1,9 @@
 import { View, Text } from "@tarojs/components";
 import Taro from "@tarojs/taro";
-import { ContractionRecord } from "../../hooks/useContractionRecords";
+import {
+  ContractionRecord,
+  useContractionRecords,
+} from "../../hooks/useContractionRecords";
 import { formatStartTime, formatInterval } from "../../utils/contractionUtils";
 
 interface TodayStats {
@@ -19,6 +22,8 @@ export const RecordsTable = ({
   todayStats,
   onViewHistory,
 }: RecordsTableProps) => {
+  const { calculateInterval } = useContractionRecords();
+
   const handleViewHistory = () => {
     if (onViewHistory) {
       onViewHistory();
@@ -28,6 +33,28 @@ export const RecordsTable = ({
         icon: "none",
       });
     }
+  };
+
+  // 计算记录的间隔时间和是否显示临产标签
+  const getRecordInterval = (
+    record: ContractionRecord,
+    index: number,
+    records: ContractionRecord[]
+  ) => {
+    // 第一条记录或者没有前一条记录
+    if (index === records.length - 1) {
+      return { intervalSeconds: 0, showDash: true, isLabor: false };
+    }
+
+    const previousRecord = records[records.length - 2 - index];
+    const intervalSeconds = calculateInterval(record, previousRecord);
+
+    // 间隔时间 > 60分钟显示 "--:--"
+    const showDash = intervalSeconds > 3600;
+    // 间隔时间 < 5分钟显示临产标签
+    const isLabor = intervalSeconds > 0 && intervalSeconds < 300;
+
+    return { intervalSeconds, showDash, isLabor };
   };
 
   if (todayStats.todayRecords.length === 0) {
@@ -71,22 +98,47 @@ export const RecordsTable = ({
           {todayStats.todayRecords
             .slice(-5)
             .reverse()
-            .map((record) => (
-              <View
-                key={record.id}
-                className="flex py-3 px-3 bg-white/80 rounded-xl border border-gray-200/60"
-              >
-                <Text className="flex-1 text-center text-sm font-semibold text-pink-600">
-                  {formatStartTime(record.startTime)}
-                </Text>
-                <Text className="flex-1 text-center text-sm font-bold text-pink-600">
-                  {record.duration}秒
-                </Text>
-                <Text className="flex-1 text-center text-sm font-bold text-pink-600">
-                  {formatInterval(record.interval)}
-                </Text>
-              </View>
-            ))}
+            .map((record, index, reversedRecords) => {
+              const { intervalSeconds, showDash, isLabor } = getRecordInterval(
+                record,
+                index,
+                todayStats.todayRecords.slice(-5)
+              );
+
+              return (
+                <View
+                  key={record.id}
+                  className="flex py-3 px-3 bg-white/80 rounded-xl border border-gray-200/60"
+                >
+                  <Text className="flex-1 text-center text-sm font-semibold text-pink-600">
+                    {formatStartTime(parseInt(record.id))}
+                  </Text>
+                  <Text className="flex-1 text-center text-sm font-bold text-pink-600">
+                    {record.duration}秒
+                  </Text>
+                  <View className="flex-1 flex items-center justify-center">
+                    {showDash ? (
+                      <Text className="text-sm font-bold text-gray-400">
+                        --:--
+                      </Text>
+                    ) : (
+                      <View className="flex items-center">
+                        <Text className="text-sm font-bold text-pink-600">
+                          {formatInterval(intervalSeconds)}
+                        </Text>
+                        {isLabor && (
+                          <View className="ml-2 px-2 py-1 bg-red-100 rounded-full">
+                            <Text className="text-xs text-red-600 font-bold">
+                              临产
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </View>
+                </View>
+              );
+            })}
         </View>
 
         {todayStats.todayRecords.length > 5 && (
